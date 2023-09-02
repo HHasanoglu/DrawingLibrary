@@ -30,8 +30,6 @@ namespace DrawingForm
         private void InitializeComponent()
         {
             this.drawingPanel = new System.Windows.Forms.Panel();
-            this.btnDrawLine = new DevExpress.XtraEditors.SimpleButton();
-            this.btnDeleteLines = new DevExpress.XtraEditors.SimpleButton();
             this.txtX1 = new System.Windows.Forms.TextBox();
             this.txtY1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -40,6 +38,8 @@ namespace DrawingForm
             this.label4 = new System.Windows.Forms.Label();
             this.txtY2 = new System.Windows.Forms.TextBox();
             this.txtX2 = new System.Windows.Forms.TextBox();
+            this.btnDrawLine = new System.Windows.Forms.Button();
+            this.btnDeleteLine = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // drawingPanel
@@ -52,22 +52,6 @@ namespace DrawingForm
             this.drawingPanel.Name = "drawingPanel";
             this.drawingPanel.Size = new System.Drawing.Size(849, 467);
             this.drawingPanel.TabIndex = 0;
-            // 
-            // btnDrawLine
-            // 
-            this.btnDrawLine.Location = new System.Drawing.Point(12, 7);
-            this.btnDrawLine.Name = "btnDrawLine";
-            this.btnDrawLine.Size = new System.Drawing.Size(137, 38);
-            this.btnDrawLine.TabIndex = 1;
-            this.btnDrawLine.Text = "Draw Line";
-            // 
-            // btnDeleteLines
-            // 
-            this.btnDeleteLines.Location = new System.Drawing.Point(155, 7);
-            this.btnDeleteLines.Name = "btnDeleteLines";
-            this.btnDeleteLines.Size = new System.Drawing.Size(137, 38);
-            this.btnDeleteLines.TabIndex = 2;
-            this.btnDeleteLines.Text = "Delete Lines";
             // 
             // txtX1
             // 
@@ -133,11 +117,31 @@ namespace DrawingForm
             this.txtX2.Size = new System.Drawing.Size(79, 20);
             this.txtX2.TabIndex = 9;
             // 
+            // btnDrawLine
+            // 
+            this.btnDrawLine.Location = new System.Drawing.Point(52, 12);
+            this.btnDrawLine.Name = "btnDrawLine";
+            this.btnDrawLine.Size = new System.Drawing.Size(113, 41);
+            this.btnDrawLine.TabIndex = 13;
+            this.btnDrawLine.Text = "Draw Line";
+            this.btnDrawLine.UseVisualStyleBackColor = true;
+            // 
+            // btnDeleteLine
+            // 
+            this.btnDeleteLine.Location = new System.Drawing.Point(171, 12);
+            this.btnDeleteLine.Name = "btnDeleteLine";
+            this.btnDeleteLine.Size = new System.Drawing.Size(113, 41);
+            this.btnDeleteLine.TabIndex = 14;
+            this.btnDeleteLine.Text = "Delete Line";
+            this.btnDeleteLine.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(873, 538);
+            this.Controls.Add(this.btnDeleteLine);
+            this.Controls.Add(this.btnDrawLine);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.txtY2);
@@ -146,8 +150,6 @@ namespace DrawingForm
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtY1);
             this.Controls.Add(this.txtX1);
-            this.Controls.Add(this.btnDeleteLines);
-            this.Controls.Add(this.btnDrawLine);
             this.Controls.Add(this.drawingPanel);
             this.MaximumSize = new System.Drawing.Size(889, 577);
             this.MinimumSize = new System.Drawing.Size(889, 577);
@@ -161,8 +163,6 @@ namespace DrawingForm
         #endregion
 
         private System.Windows.Forms.Panel drawingPanel;
-        private DevExpress.XtraEditors.SimpleButton btnDrawLine;
-        private DevExpress.XtraEditors.SimpleButton btnDeleteLines;
         private System.Windows.Forms.TextBox txtX1;
         private System.Windows.Forms.TextBox txtY1;
         private System.Windows.Forms.Label label1;
@@ -171,6 +171,8 @@ namespace DrawingForm
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtY2;
         private System.Windows.Forms.TextBox txtX2;
+        private System.Windows.Forms.Button btnDrawLine;
+        private System.Windows.Forms.Button btnDeleteLine;
     }
 }
 

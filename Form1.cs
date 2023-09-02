@@ -35,7 +35,8 @@ namespace DrawingForm
             btnDrawLine.Click += BtnDrawLine_Click;
             drawingPanel.Resize += DrawingPanel_Resize;
             drawingPanel.Paint += DrawingPanel_Paint;
-            btnDeleteLines.Click += BtnDeleteLines_Click;
+            btnDeleteLine.Click += BtnDeleteLines_Click;
+            //This is for Git Check
         }
 
         private void BtnDeleteLines_Click(object sender, EventArgs e)
