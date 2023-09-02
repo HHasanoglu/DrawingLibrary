@@ -71,20 +71,41 @@ namespace DrawingForm
             float.TryParse(txtY1.Text, out float y1);
             float.TryParse(txtX2.Text, out float x2);
             float.TryParse(txtY2.Text, out float y2);
-            DrawLine(x1,y1,x2,y2);
+            DrawLine(x1, y1, x2, y2);
         }
 
         private void DrawLine(float x1, float y1, float x2, float y2)
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
             {
-                Pen gridPen = new Pen(Color.Blue,4);
+                Pen gridPen = new Pen(Color.Blue, 4);
                 var finalx1 = x1 + _gridSize;
                 var finaly1 = drawingPanel.Height - y1 - _gridSize;
                 var finalx2 = x2 + _gridSize;
                 var finaly2 = drawingPanel.Height - y2 - _gridSize;
 
-                _panelGraphic.DrawLine(gridPen,finalx1 ,finaly1 ,finalx2 ,finaly2 );
+                _panelGraphic.DrawLine(gridPen, finalx1, finaly1, finalx2, finaly2);
+
+
+                // Define the points for the polygon
+                Point[] polygonPoints = new Point[]
+                {
+            new Point(100, 100),
+            new Point(200, 50),
+            new Point(300, 100),
+            new Point(250, 200),
+            new Point(150, 200)
+                };
+
+                // Create a Pen for the polygon outline
+                Pen outlinePen = new Pen(Color.Blue, 2);
+                Brush fillBrush = new SolidBrush(Color.Blue);
+
+                // Draw the polygon
+                _panelGraphic.FillPolygon(fillBrush, polygonPoints);
+
+                // Dispose of the Pen object to release resources
+                outlinePen.Dispose();
             }
         }
 
@@ -104,7 +125,7 @@ namespace DrawingForm
                 //Draw the vertical lines
                 for (int x = 0; x < drawingPanel.Width; x += _gridSize)
                 {
-                    _panelGraphic.DrawLine(gridPen, x , 0, x, drawingPanel.Height);
+                    _panelGraphic.DrawLine(gridPen, x, 0, x, drawingPanel.Height);
                 }
 
                 // Dispose of the Pen object to release resources
