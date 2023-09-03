@@ -19,24 +19,20 @@ namespace DrawingForm
         {
             InitializeComponent();
 
+            _drawingHelper = new DrawignHelper();
+
             SubscribeToEvents();
-            _listOfPoints = new List<PointF>();
-            _listOfPointsForMagnitude = new List<PointF>();
-            _listOfCoordinatesForFillBrush = new List<PointF>();
         }
 
         #endregion
 
         #region Private Fields
 
+        private DrawignHelper _drawingHelper;
+
         private Graphics _panelGraphic;
         const int _gridSize = 100; // Adjust this value for the grid spacing
 
-        List<PointF> _listOfPoints;
-
-        List<PointF> _listOfPointsForMagnitude;
-
-        List<PointF> _listOfCoordinatesForFillBrush;
 
         #endregion
 
@@ -45,13 +41,13 @@ namespace DrawingForm
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
             {
-                _panelGraphic.Clear(Color.White);
+                //_panelGraphic.Clear(Color.White);
 
-                _listOfPoints.Clear();
-                _listOfPointsForMagnitude.Clear();
+                _drawingHelper.ListOfPoints.Clear();
+                _drawingHelper.ListOfPointsForMagnitude.Clear();
 
-                DrawGrid();
             }
+            drawingPanel.Invalidate();
         }
 
         private void DrawingPanel_Paint(object sender, PaintEventArgs e)
@@ -78,6 +74,8 @@ namespace DrawingForm
             float.TryParse(txtX2.Text, out float x2);
             float.TryParse(txtY2.Text, out float y2);
 
+            AddLineToDictionary(x1, y1, x2, y2);
+
             DrawLine(x1, y1, x2, y2);
 
             float.TryParse(txtMagnitude.Text, out float magnitude1);
@@ -93,6 +91,12 @@ namespace DrawingForm
             //}
 
             //DrawMagnitude(x2, y2, magnitude2);
+        }
+
+        private void AddLineToDictionary(float x1, float y1, float x2, float y2)
+        {
+            var lineElement = new LineElement(Guid.NewGuid(), new PointF(x1, y1), new PointF(x2, y2));
+            _drawingHelper.LineElements.Add(lineElement.Id, lineElement);
         }
 
         private void ConnectMagnitudes(float x1, float y1, float x2, float y2)
@@ -144,40 +148,111 @@ namespace DrawingForm
 
         private float ConvertCoordinate(float value, bool isY = false)
         {
-            return isY ? value - _gridSize : value + _gridSize;
+            return isY ? drawingPanel.Height - value - _gridSize : value + _gridSize;
         }
 
         private void DrawMagnitude(float x1, float y1, float magnitude1, float x2, float y2, float magnitude2)
         {
+            //using (_panelGraphic = drawingPanel.CreateGraphics())
+            //{
+
+            //    // Define the points for the polygon
+
+            //    PointF[] polygonPoints = new PointF[]
+            //{
+            //    new PointF(ConvertCoordinate( 0),ConvertCoordinate(0  ,true)),
+            //    new PointF(ConvertCoordinate(0), ConvertCoordinate(100,true)),
+            //    new PointF(ConvertCoordinate(50),ConvertCoordinate(100,true)),
+            //    new PointF(ConvertCoordinate(-50), ConvertCoordinate(0  ,true))
+            //};
+
+            //    // Create a Pen for the polygon outline
+            //    Pen outlinePen = new Pen(Color.Blue, 2);
+            //    Brush fillBrush = new SolidBrush(Color.Blue);
+
+            //    //Draw the polygon
+            //    _panelGraphic.FillPolygon(fillBrush, polygonPoints);
+
+            //    // Dispose of the Pen object to release resources
+            //    outlinePen.Dispose();
+            //}
+
+
             x1 = ConvertCoordinate(x1);
             x2 = ConvertCoordinate(x2);
-            y1 = ConvertCoordinate(y1,true);
-            y2 = ConvertCoordinate(y2,true);
+            y1 = ConvertCoordinate(y1, true);
+            y2 = ConvertCoordinate(y2, true);
+
+            var points = new List<PointF>();
+
 
             var maxMagnitude = Math.Max(magnitude1, magnitude2);
             var minMagnitude = Math.Min(magnitude1, magnitude2);
 
-            float length = (float) Math.Sqrt(Math.Pow(y2 - y1, 2) + Math.Pow(x2 - x1, 2));
+            float length = (float)Math.Sqrt(Math.Pow(y2 - y1, 2) + Math.Pow(x2 - x1, 2));
 
             var maxLength = length * 0.2f;
+            var x3 = x2 - magnitude2;
+            var y3 = y2;
+
+            var x4 = x1 - magnitude1;
+            var y4 = y1;
+
+            //if (x1 > x4)
+            //{
+            //    x1 = x1 - 1.5f;
+            //    x2 = x2 - 1.5f;
+            //}
+            //else
+            //{
+            //    x1 = x1 + 1.5f;
+            //    x2 = x2 + 1.5f;
+            //}
+
+            points.Add(new PointF(x1, y1));
+            points.Add(new PointF(x2, y2));
+            points.Add(new PointF(x3, y3));
+            points.Add(new PointF(x4, y4));
+
+            drawPolygon(points.ToArray());
 
 
+
+
+
+
+            //using (_panelGraphic = drawingPanel.CreateGraphics())
+            //{
+            //    Pen gridPen = new Pen(Color.Black, 3);
+            //    var finalX1 = x1 ;
+            //    var finalY1 = drawingPanel.Height - y1;
+            //    var finalX2 = x1;
+            //    var finalY2 = drawingPanel.Height - y1  - maxLength;
+
+            //    //var finalMagnitude = (magnitude * 25) / 100;
+
+
+            //    _panelGraphic.DrawLine(gridPen, finalX1, finalY1, finalX2, finalY2);
+            //    _listOfPointsForMagnitude.Add(new PointF(finalX2, finalY2));
+            //    gridPen.Dispose();
+            //}
+
+        }
+
+        private void drawPolygon(PointF[] polygonPoints)
+        {
             using (_panelGraphic = drawingPanel.CreateGraphics())
             {
-                Pen gridPen = new Pen(Color.Black, 3);
-                var finalX1 = x1 ;
-                var finalY1 = drawingPanel.Height - y1;
-                var finalX2 = x1;
-                var finalY2 = drawingPanel.Height - y1  - maxLength;
+                // Create a Pen for the polygon outline
+                Pen outlinePen = new Pen(Color.Blue, 2);
+                Brush fillBrush = new SolidBrush(Color.LightBlue);
 
-                //var finalMagnitude = (magnitude * 25) / 100;
+                //Draw the polygon
+                _panelGraphic.FillPolygon(fillBrush, polygonPoints);
 
-
-                _panelGraphic.DrawLine(gridPen, finalX1, finalY1, finalX2, finalY2);
-                _listOfPointsForMagnitude.Add(new PointF(finalX2, finalY2));
-                gridPen.Dispose();
+                // Dispose of the Pen object to release resources
+                outlinePen.Dispose();
             }
-
         }
 
         private void DrawMagnitude(float x1, float y1, float magnitude)
@@ -190,26 +265,26 @@ namespace DrawingForm
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
             {
-                Pen gridPen = new Pen(Color.Blue, 3);
+                Pen Pen = new Pen(Color.Blue, 3);
 
                 var finalX1 = x1 + _gridSize;
                 var finalY1 = drawingPanel.Height - y1 - _gridSize;
                 var finalX2 = x2 + _gridSize;
                 var finalY2 = drawingPanel.Height - y2 - _gridSize;
-                if (_listOfPoints.Count == 0)
+                if (_drawingHelper.ListOfPoints.Count == 0)
                 {
-                    _panelGraphic.DrawLine(gridPen, finalX1, finalY1, finalX2, finalY2);
+                    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
                 }
                 else
                 {
-                    //var count = _listOfPoints.Count;
-                    //PointF Point = _listOfPoints[_listOfPoints.Last().];
-                    finalX1 = _listOfPoints.Last().X + _gridSize;
-                    finalY1 = drawingPanel.Height - _listOfPoints.Last().Y - _gridSize;
+                    //var count = _drawingHelper.ListOfPoints.Count;
+                    //PointF Point = _drawingHelper.ListOfPoints[_drawingHelper.ListOfPoints.Last().];
+                    finalX1 = _drawingHelper.ListOfPoints.Last().X + _gridSize;
+                    finalY1 = drawingPanel.Height - _drawingHelper.ListOfPoints.Last().Y - _gridSize;
                     finalX2 = x1 + _gridSize;
                     finalY2 = drawingPanel.Height - y1 - _gridSize;
 
-                    _panelGraphic.DrawLine(gridPen, finalX1, finalY1, finalX2, finalY2);
+                    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
                     //_listOfCoordinatesForFillBrush.Add()
                 }
 
@@ -217,36 +292,12 @@ namespace DrawingForm
                 //DrawCircle(finalX1, finalY1);
                 //DrawCircle(finalX2, finalY2);
 
-                _listOfPoints.Add(new PointF(x1, y1));
+                _drawingHelper.ListOfPoints.Add(new PointF(x1, y1));
 
 
                 ClearInputs();
 
-                gridPen.Dispose();
-
-
-
-
-
-                // Define the points for the polygon
-                //    Point[] polygonPoints = new Point[]
-                //    {
-                //new Point(100, 100),
-                //new Point(200, 50),
-                //new Point(300, 100),
-                //new Point(250, 200),
-                //new Point(150, 200)
-                //    };
-
-                //    // Create a Pen for the polygon outline
-                //    Pen outlinePen = new Pen(Color.Blue, 2);
-                //    Brush fillBrush = new SolidBrush(Color.Blue);
-
-                // Draw the polygon
-                //_panelGraphic.FillPolygon(fillBrush, polygonPoints);
-
-                //// Dispose of the Pen object to release resources
-                //outlinePen.Dispose();
+                Pen.Dispose();
             }
         }
 
