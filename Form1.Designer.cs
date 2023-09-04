@@ -45,6 +45,10 @@ namespace DrawingForm
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.btnDrawDiagram = new System.Windows.Forms.Button();
+            this.lblX = new System.Windows.Forms.Label();
+            this.btnDrawWithMouse = new System.Windows.Forms.Button();
+            this.btnDrawLineWithMouse = new System.Windows.Forms.Button();
+            this.btnDisableExtendedLine = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // drawingPanel
@@ -53,9 +57,9 @@ namespace DrawingForm
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.drawingPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.drawingPanel.Location = new System.Drawing.Point(12, 59);
+            this.drawingPanel.Location = new System.Drawing.Point(26, 93);
             this.drawingPanel.Name = "drawingPanel";
-            this.drawingPanel.Size = new System.Drawing.Size(841, 467);
+            this.drawingPanel.Size = new System.Drawing.Size(818, 483);
             this.drawingPanel.TabIndex = 0;
             // 
             // txtX1
@@ -113,31 +117,31 @@ namespace DrawingForm
             this.txtY2.Location = new System.Drawing.Point(640, 30);
             this.txtY2.Name = "txtY2";
             this.txtY2.Size = new System.Drawing.Size(79, 20);
-            this.txtY2.TabIndex = 10;
+            this.txtY2.TabIndex = 4;
             // 
             // txtX2
             // 
             this.txtX2.Location = new System.Drawing.Point(640, 4);
             this.txtX2.Name = "txtX2";
             this.txtX2.Size = new System.Drawing.Size(79, 20);
-            this.txtX2.TabIndex = 9;
+            this.txtX2.TabIndex = 3;
             // 
             // btnDrawLine
             // 
             this.btnDrawLine.AccessibleName = "";
-            this.btnDrawLine.Location = new System.Drawing.Point(52, 12);
+            this.btnDrawLine.Location = new System.Drawing.Point(12, 2);
             this.btnDrawLine.Name = "btnDrawLine";
-            this.btnDrawLine.Size = new System.Drawing.Size(113, 41);
-            this.btnDrawLine.TabIndex = 3;
+            this.btnDrawLine.Size = new System.Drawing.Size(79, 41);
+            this.btnDrawLine.TabIndex = 6;
             this.btnDrawLine.Text = "Draw Line";
             this.btnDrawLine.UseVisualStyleBackColor = true;
             // 
             // btnDeleteLine
             // 
-            this.btnDeleteLine.Location = new System.Drawing.Point(171, 12);
+            this.btnDeleteLine.Location = new System.Drawing.Point(12, 46);
             this.btnDeleteLine.Name = "btnDeleteLine";
-            this.btnDeleteLine.Size = new System.Drawing.Size(113, 41);
-            this.btnDeleteLine.TabIndex = 14;
+            this.btnDeleteLine.Size = new System.Drawing.Size(79, 41);
+            this.btnDeleteLine.TabIndex = 8;
             this.btnDeleteLine.Text = "Delete Line";
             this.btnDeleteLine.UseVisualStyleBackColor = true;
             // 
@@ -153,7 +157,7 @@ namespace DrawingForm
             this.txtMagnitude2.Location = new System.Drawing.Point(725, 20);
             this.txtMagnitude2.Name = "txtMagnitude2";
             this.txtMagnitude2.Size = new System.Drawing.Size(119, 20);
-            this.txtMagnitude2.TabIndex = 16;
+            this.txtMagnitude2.TabIndex = 5;
             // 
             // label5
             // 
@@ -175,18 +179,59 @@ namespace DrawingForm
             // 
             // btnDrawDiagram
             // 
-            this.btnDrawDiagram.Location = new System.Drawing.Point(290, 12);
+            this.btnDrawDiagram.Location = new System.Drawing.Point(97, 2);
             this.btnDrawDiagram.Name = "btnDrawDiagram";
-            this.btnDrawDiagram.Size = new System.Drawing.Size(114, 41);
-            this.btnDrawDiagram.TabIndex = 19;
+            this.btnDrawDiagram.Size = new System.Drawing.Size(80, 41);
+            this.btnDrawDiagram.TabIndex = 7;
             this.btnDrawDiagram.Text = "Draw Diagram";
             this.btnDrawDiagram.UseVisualStyleBackColor = true;
             // 
+            // lblX
+            // 
+            this.lblX.AutoSize = true;
+            this.lblX.Location = new System.Drawing.Point(431, 74);
+            this.lblX.Name = "lblX";
+            this.lblX.Size = new System.Drawing.Size(66, 13);
+            this.lblX.TabIndex = 19;
+            this.lblX.Text = "Coordinates:";
+            // 
+            // btnDrawWithMouse
+            // 
+            this.btnDrawWithMouse.Location = new System.Drawing.Point(183, 2);
+            this.btnDrawWithMouse.Name = "btnDrawWithMouse";
+            this.btnDrawWithMouse.Size = new System.Drawing.Size(88, 41);
+            this.btnDrawWithMouse.TabIndex = 20;
+            this.btnDrawWithMouse.Text = "Draw Point with Mouse";
+            this.btnDrawWithMouse.UseVisualStyleBackColor = true;
+            // 
+            // btnDrawLineWithMouse
+            // 
+            this.btnDrawLineWithMouse.Location = new System.Drawing.Point(277, 2);
+            this.btnDrawLineWithMouse.Name = "btnDrawLineWithMouse";
+            this.btnDrawLineWithMouse.Size = new System.Drawing.Size(88, 41);
+            this.btnDrawLineWithMouse.TabIndex = 21;
+            this.btnDrawLineWithMouse.Text = "Draw Line with Mouse";
+            this.btnDrawLineWithMouse.UseVisualStyleBackColor = true;
+            // 
+            // btnDisableExtendedLine
+            // 
+            this.btnDisableExtendedLine.Location = new System.Drawing.Point(97, 46);
+            this.btnDisableExtendedLine.Name = "btnDisableExtendedLine";
+            this.btnDisableExtendedLine.Size = new System.Drawing.Size(88, 41);
+            this.btnDisableExtendedLine.TabIndex = 22;
+            this.btnDisableExtendedLine.Text = "Disable Extended Line";
+            this.btnDisableExtendedLine.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
+            this.AcceptButton = this.btnDrawLine;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(865, 538);
+            this.ClientSize = new System.Drawing.Size(865, 588);
+            this.Controls.Add(this.btnDisableExtendedLine);
+            this.Controls.Add(this.btnDrawLineWithMouse);
+            this.Controls.Add(this.btnDrawWithMouse);
+            this.Controls.Add(this.lblX);
             this.Controls.Add(this.btnDrawDiagram);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
@@ -203,6 +248,8 @@ namespace DrawingForm
             this.Controls.Add(this.txtY1);
             this.Controls.Add(this.txtX1);
             this.Controls.Add(this.drawingPanel);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
@@ -229,6 +276,10 @@ namespace DrawingForm
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button btnDrawDiagram;
+        private System.Windows.Forms.Label lblX;
+        private System.Windows.Forms.Button btnDrawWithMouse;
+        private System.Windows.Forms.Button btnDrawLineWithMouse;
+        private System.Windows.Forms.Button btnDisableExtendedLine;
     }
 }
 

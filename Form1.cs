@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DrawingForm.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -32,11 +33,178 @@ namespace DrawingForm
 
         private Graphics _panelGraphic;
         const int _gridSize = 100; // Adjust this value for the grid spacing
-
+        private Vector _currentPosition;
+        private Vector _firstPosition;
+        private int _drawIndex = -1;
+        private bool _activeDrawing = false;
+        private int _clickNum = 1;
+        private bool _enableExtendedLine = true;
 
         #endregion
 
         #region Events
+
+        private void BtnDisableExtendedLine_Click(object sender, EventArgs e)
+        {
+            if (_enableExtendedLine)
+            {
+                _enableExtendedLine = false;
+                btnDisableExtendedLine.Text = "Enable Extended Line Mode";
+            }
+            else
+            {
+                _enableExtendedLine = true;
+                btnDisableExtendedLine.Text = "Disable Extended Line Mode";
+            }
+        }
+        // Button Draw With Mouse
+
+        private void BtnDrawLineWithMouse_Click(object sender, EventArgs e)
+        {
+            if (_activeDrawing)
+            {
+                _drawIndex = -1;
+                drawingPanel.Cursor = Cursors.Arrow;
+                _activeDrawing = false;
+            }
+            else
+            {
+                _drawIndex = 1;
+                _activeDrawing = true;
+                drawingPanel.Cursor = Cursors.Cross;
+            }
+        }
+
+        private void BtnDrawWithMouse_Click(object sender, EventArgs e)
+        {
+            if (_activeDrawing)
+            {
+                _drawIndex = -1;
+                drawingPanel.Cursor = Cursors.Arrow;
+                _activeDrawing = false;
+            }
+            else
+            {
+                _drawIndex = 0;
+                _activeDrawing = true;
+                drawingPanel.Cursor = Cursors.Cross;
+            }
+        }
+
+        //Button Draw Diagram
+        private void BtnDrawDiagram_Click(object sender, EventArgs e)
+        {
+            float.TryParse(txtX1.Text, out float x1);
+            float.TryParse(txtY1.Text, out float y1);
+            float.TryParse(txtX2.Text, out float x2);
+            float.TryParse(txtY2.Text, out float y2);
+
+            float.TryParse(txtMagnitude.Text, out float magnitude1);
+            float.TryParse(txtMagnitude2.Text, out float magnitude2);
+            DrawMagnitude(x1, y1, magnitude1, x2, y2, magnitude2);
+            DrawLine(x1, y1, x2, y2);
+
+            //using (_panelGraphic = drawingPanel.CreateGraphics())
+            //{
+            //    Pen Pen = new Pen(Color.LightSkyBlue, 2.5f);
+            //    Vector startPoint = new Vector(ConvertCoordinate(x1), ConvertCoordinate(y1, true));
+            //    Vector endPoint = new Vector(ConvertCoordinate(x2), ConvertCoordinate(y2, true));
+
+            //    LineElement line = new LineElement(startPoint, endPoint);
+            //    _panelGraphic.DrawLine(Pen, line);
+
+            //    Pen.Dispose();
+
+            //}
+
+        }
+
+        //  Mouse Down on panel to draw a point
+        private void DrawingPanel_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (_activeDrawing)
+                {
+                    switch (_drawIndex)
+                    {
+                        case 0: // Point
+                            {
+                                AddCurrentPositionToListOfPoints();
+                                break;
+                            }
+
+                        case 1: // Line
+                            {
+                                switch (_clickNum)
+                                {
+                                    case 1:
+                                        {
+                                            _firstPosition = _currentPosition;
+
+                                            AddCurrentPositionToListOfPoints();
+
+                                            _clickNum++;
+                                            break;
+                                        }
+
+                                    case 2:
+                                        {
+                                            LineElement line = new LineElement(_firstPosition, _currentPosition);
+                                            AddCurrentPositionToListOfPoints();
+                                            //MessageBox.Show(string.Format("{0}, {1}", line.StartPoint.X + " " + line.StartPoint.Y, line.EndPoint.X + " " + line.EndPoint.Y));
+                                            AddLineToListOfLines(line);
+                                            _firstPosition = _currentPosition;
+
+                                            break;
+                                        }
+                                }
+                                break;
+                            }
+                    }
+                    drawingPanel.Refresh();
+                }
+            }
+
+            if (e.Button == MouseButtons.Right)
+            {
+                if (_drawIndex == 1)
+                {
+                    _drawIndex = -1;
+                    drawingPanel.Cursor = Cursors.Arrow;
+                    _activeDrawing = false;
+                }
+            }
+        }
+
+        private void AddLineToListOfLines(LineElement line)
+        {
+            _drawingHelper.LineElements.Add(line.Id, line);
+        }
+
+        private void AddCurrentPositionToListOfPoints()
+        {
+            _drawingHelper.ListOfPointsCoordinate.Add(new Entities.Point(_currentPosition));
+        }
+
+        // Mouse Move on Panel
+        private void DrawingPanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            var originalXCoordinate = e.Location.X;
+            var originalYCoordinate = e.Location.Y;
+
+            PointF p = new PointF(originalXCoordinate - _gridSize,drawingPanel.Height - originalYCoordinate - _gridSize);
+
+            _currentPosition = new Vector(ConvertCoordinate(e.Location.X - _gridSize), ConvertCoordinate(e.Location.Y, true));
+            lblX.Text = string.Format("X: {0}, Y: {1}", p.X,p.Y);
+            if (_enableExtendedLine)
+            {
+                drawingPanel.Refresh();
+            }
+
+        }
+
+        // Button to clear to the panel
         private void BtnDeleteLines_Click(object sender, EventArgs e)
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
@@ -45,15 +213,82 @@ namespace DrawingForm
 
                 _drawingHelper.ListOfPoints.Clear();
                 _drawingHelper.ListOfPointsForMagnitude.Clear();
+               
 
             }
+            _drawingHelper.ListOfPointsCoordinate.Clear();
+            _drawingHelper.LineElements.Clear();
+            
+            _clickNum = 1;
+            _currentPosition = null;
+            _firstPosition = null;
+            drawingPanel.Refresh();
             drawingPanel.Invalidate();
         }
+
+        // 
+
+
 
         private void DrawingPanel_Paint(object sender, PaintEventArgs e)
         {
 
             DrawGrid();
+            using (_panelGraphic = drawingPanel.CreateGraphics())
+            {
+                Pen Pen = new Pen(Color.LightGray, 3);
+                _panelGraphic.DrawLine(Pen, ConvertCoordinate(0), ConvertCoordinate(0, true), ConvertCoordinate(drawingPanel.Width), ConvertCoordinate(0, true));
+                _panelGraphic.DrawLine(Pen, ConvertCoordinate(0), ConvertCoordinate(0, true), ConvertCoordinate(0), ConvertCoordinate(drawingPanel.Height, true));
+
+                _panelGraphic.SetParameters(ConvertCoordinate(0, true));
+
+                //Draw All points
+                Pen = new Pen(Color.LightGreen, 2); // Color of the point
+                if (_drawingHelper.ListOfPointsCoordinate.Count > 0)
+                {
+                    foreach (var point in _drawingHelper.ListOfPointsCoordinate)
+                    {
+                        _panelGraphic.DrawPoint(new Pen(Color.LightGreen, 2), point);
+
+                    }
+                }
+
+                //Draw All lines
+
+                Pen = new Pen(Color.LightSkyBlue, 2.5f);
+
+                if (_drawingHelper.LineElements.Count > 0)
+                {
+                    foreach (var line in _drawingHelper.LineElements)
+                    {
+                        _panelGraphic.DrawLine(Pen, line.Value);
+                    }
+                }
+
+                //Draw Line Extended
+
+                switch (_drawIndex)
+                {
+                    case 1:
+                        {
+                            if (_clickNum == 2)
+                            {
+                                Pen = new Pen(Color.LightGreen, 2f);
+
+                                Vector startPoint = new Vector(_firstPosition.X, _firstPosition.Y);
+                                Vector endPoint = new Vector(_currentPosition.X, _currentPosition.Y);
+
+                                LineElement line = new LineElement(startPoint, endPoint);
+                                _panelGraphic.DrawLine(Pen, line);
+
+                            }
+                            break;
+                        }
+                }
+
+                Pen.Dispose();
+            }
+
         }
 
         //private void DrawingPanel_Resize(object sender, EventArgs e)
@@ -74,7 +309,6 @@ namespace DrawingForm
             float.TryParse(txtX2.Text, out float x2);
             float.TryParse(txtY2.Text, out float y2);
 
-            AddLineToDictionary(x1, y1, x2, y2);
 
             DrawLine(x1, y1, x2, y2);
 
@@ -91,12 +325,6 @@ namespace DrawingForm
             //}
 
             //DrawMagnitude(x2, y2, magnitude2);
-        }
-
-        private void AddLineToDictionary(float x1, float y1, float x2, float y2)
-        {
-            var lineElement = new LineElement(Guid.NewGuid(), new PointF(x1, y1), new PointF(x2, y2));
-            _drawingHelper.LineElements.Add(lineElement.Id, lineElement);
         }
 
         private void ConnectMagnitudes(float x1, float y1, float x2, float y2)
@@ -118,7 +346,6 @@ namespace DrawingForm
 
         #endregion
 
-
         #region Private Methods
 
         private void SubscribeToEvents()
@@ -128,55 +355,30 @@ namespace DrawingForm
             drawingPanel.Paint += DrawingPanel_Paint;
             btnDeleteLine.Click += BtnDeleteLines_Click;
             btnDrawDiagram.Click += BtnDrawDiagram_Click;
+            drawingPanel.MouseMove += DrawingPanel_MouseMove;
+            drawingPanel.MouseDown += DrawingPanel_MouseDown;
+            btnDrawWithMouse.Click += BtnDrawWithMouse_Click;
+            btnDrawLineWithMouse.Click += BtnDrawLineWithMouse_Click;
+            btnDisableExtendedLine.Click += BtnDisableExtendedLine_Click;
+
             //This is for Git Check
         }
 
-        private void BtnDrawDiagram_Click(object sender, EventArgs e)
-        {
-            float.TryParse(txtX1.Text, out float x1);
-            float.TryParse(txtY1.Text, out float y1);
-            float.TryParse(txtX2.Text, out float x2);
-            float.TryParse(txtY2.Text, out float y2);
 
-            float.TryParse(txtMagnitude.Text, out float magnitude1);
-            float.TryParse(txtMagnitude2.Text, out float magnitude2);
-
-            DrawMagnitude(x1, y1, magnitude1, x2, y2, magnitude2);
-
-
-        }
 
         private float ConvertCoordinate(float value, bool isY = false)
         {
+
             return isY ? drawingPanel.Height - value - _gridSize : value + _gridSize;
+
+            //return isY ? drawingPanel.Height - value  : value ; 
+
+
+
         }
 
         private void DrawMagnitude(float x1, float y1, float magnitude1, float x2, float y2, float magnitude2)
         {
-            //using (_panelGraphic = drawingPanel.CreateGraphics())
-            //{
-
-            //    // Define the points for the polygon
-
-            //    PointF[] polygonPoints = new PointF[]
-            //{
-            //    new PointF(ConvertCoordinate( 0),ConvertCoordinate(0  ,true)),
-            //    new PointF(ConvertCoordinate(0), ConvertCoordinate(100,true)),
-            //    new PointF(ConvertCoordinate(50),ConvertCoordinate(100,true)),
-            //    new PointF(ConvertCoordinate(-50), ConvertCoordinate(0  ,true))
-            //};
-
-            //    // Create a Pen for the polygon outline
-            //    Pen outlinePen = new Pen(Color.Blue, 2);
-            //    Brush fillBrush = new SolidBrush(Color.Blue);
-
-            //    //Draw the polygon
-            //    _panelGraphic.FillPolygon(fillBrush, polygonPoints);
-
-            //    // Dispose of the Pen object to release resources
-            //    outlinePen.Dispose();
-            //}
-
 
             x1 = ConvertCoordinate(x1);
             x2 = ConvertCoordinate(x2);
@@ -214,20 +416,40 @@ namespace DrawingForm
             points.Add(new PointF(x3, y3));
             points.Add(new PointF(x4, y4));
 
-            drawPolygon(points.ToArray());
-
-
-
-
+            DrawPolygon(points.ToArray());
 
 
             //using (_panelGraphic = drawingPanel.CreateGraphics())
             //{
+
+            //    // Define the points for the polygon
+
+            //    PointF[] polygonPoints = new PointF[]
+            //{
+            //    new PointF(ConvertCoordinate( 0),ConvertCoordinate(0  ,true)),
+            //    new PointF(ConvertCoordinate(0), ConvertCoordinate(100,true)),
+            //    new PointF(ConvertCoordinate(50),ConvertCoordinate(100,true)),
+            //    new PointF(ConvertCoordinate(-50), ConvertCoordinate(0  ,true))
+            //};
+
+            //    // Create a Pen for the polygon outline
+            //    Pen outlinePen = new Pen(Color.Blue, 2);
+            //    Brush fillBrush = new SolidBrush(Color.Blue);
+
+            //    //Draw the polygon
+            //    _panelGraphic.FillPolygon(fillBrush, polygonPoints);
+
+            //    // Dispose of the Pen object to release resources
+            //    outlinePen.Dispose();
+            //}
+
+            //using (_panelGraphic = drawingPanel.CreateGraphics())
+            //{
             //    Pen gridPen = new Pen(Color.Black, 3);
-            //    var finalX1 = x1 ;
+            //    var finalX1 = x1;
             //    var finalY1 = drawingPanel.Height - y1;
             //    var finalX2 = x1;
-            //    var finalY2 = drawingPanel.Height - y1  - maxLength;
+            //    var finalY2 = drawingPanel.Height - y1 - maxLength;
 
             //    //var finalMagnitude = (magnitude * 25) / 100;
 
@@ -239,7 +461,7 @@ namespace DrawingForm
 
         }
 
-        private void drawPolygon(PointF[] polygonPoints)
+        private void DrawPolygon(PointF[] polygonPoints)
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
             {
@@ -255,12 +477,6 @@ namespace DrawingForm
             }
         }
 
-        private void DrawMagnitude(float x1, float y1, float magnitude)
-        {
-
-        }
-
-
         private void DrawLine(float x1, float y1, float x2, float y2)
         {
             using (_panelGraphic = drawingPanel.CreateGraphics())
@@ -271,22 +487,25 @@ namespace DrawingForm
                 var finalY1 = drawingPanel.Height - y1 - _gridSize;
                 var finalX2 = x2 + _gridSize;
                 var finalY2 = drawingPanel.Height - y2 - _gridSize;
-                if (_drawingHelper.ListOfPoints.Count == 0)
-                {
-                    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
-                }
-                else
-                {
-                    //var count = _drawingHelper.ListOfPoints.Count;
-                    //PointF Point = _drawingHelper.ListOfPoints[_drawingHelper.ListOfPoints.Last().];
-                    finalX1 = _drawingHelper.ListOfPoints.Last().X + _gridSize;
-                    finalY1 = drawingPanel.Height - _drawingHelper.ListOfPoints.Last().Y - _gridSize;
-                    finalX2 = x1 + _gridSize;
-                    finalY2 = drawingPanel.Height - y1 - _gridSize;
 
-                    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
-                    //_listOfCoordinatesForFillBrush.Add()
-                }
+                _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
+
+                //if (_drawingHelper.ListOfPoints.Count == 0)
+                //{
+                //    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
+                //}
+                //else
+                //{
+                //    //var count = _drawingHelper.ListOfPoints.Count;
+                //    //PointF Point = _drawingHelper.ListOfPoints[_drawingHelper.ListOfPoints.Last().];
+                //    finalX1 = _drawingHelper.ListOfPoints.Last().X + _gridSize;
+                //    finalY1 = drawingPanel.Height - _drawingHelper.ListOfPoints.Last().Y - _gridSize;
+                //    finalX2 = x1 + _gridSize;
+                //    finalY2 = drawingPanel.Height - y1 - _gridSize;
+
+                //    _panelGraphic.DrawLine(Pen, finalX1, finalY1, finalX2, finalY2);
+                //    //_listOfCoordinatesForFillBrush.Add()
+                //}
 
 
                 //DrawCircle(finalX1, finalY1);
